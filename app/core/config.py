@@ -26,7 +26,6 @@ class Settings(BaseSettings):
 
 
     kafka_brokers: str = "kafka:9092"
-    kafka_publish_timeout_seconds: float = 7.0
     kafka_topic: str = "legal-entities-created"
     kafka_group_id: str = "notification-service"
     

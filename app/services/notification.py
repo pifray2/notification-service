@@ -27,8 +27,8 @@ class NotificationService:
         created_at=event.created_at,
     )
     
-    async def list_notifications(self) -> list[Notification]:
-        return await self.notifications.list()
+    async def list_notifications(self, *, limit: int, offset: int) -> list[Notification]:
+        return await self.notifications.list(limit=limit, offset=offset)
     
     async def process_event(self, topic: str, payload: dict) -> Notification | None:
         event = self.create_notification(topic, payload)

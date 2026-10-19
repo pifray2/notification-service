@@ -1,17 +1,15 @@
 from fastapi import APIRouter, Depends, Query
+from app.api.deps import get_notifications_service
 from app.models import Notification
 from app.schemas.notification import NotificationResponse
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.repositories.notifications import NotificationRepository
-from app.db.session import get_db_session
+from app.services.notification import NotificationService
 router = APIRouter(prefix="/notifications", tags=["notifications"])
 
 @router.get("", response_model=list[NotificationResponse])
 async def list_notifications(
     limit: int = Query(100, ge=1, le=1000),
     offset: int = Query(0, ge=0),
-    session: AsyncSession = Depends(get_db_session),
+    service: NotificationService = Depends(get_notifications_service),
 ) -> list[Notification]:
-    notification = NotificationRepository(session)
-    rows = await notification.list(limit=limit, offset=offset)
+    rows = await service.list_notifications(limit=limit, offset=offset)
     return [NotificationResponse.model_validate(r) for r in rows]
