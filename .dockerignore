@@ -1,0 +1,12 @@
+.venv/
+.git/
+.gitignore
+__pycache__/
+*.pyc
+*.pyo
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+notification_service.egg-info/
+.env
+*.log

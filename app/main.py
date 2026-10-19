@@ -6,15 +6,24 @@ from fastapi.responses import JSONResponse
 from app.api.router import api_router
 from app.core.config import get_settings
 from app.core.exceptions import AppError
+from app.core.logging import setup_logging
+from app.integrations.consumer import NotificationConsumer
 
 
 settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator:
-    yield
+    consumer = NotificationConsumer()
+    await consumer.start()
+    try:
+        yield
+    finally:
+        await consumer.stop()
+
     
 def create_app() -> FastAPI:
+    setup_logging()
     app = FastAPI(
         title="Notification for crm project",
         version="0.1.0",

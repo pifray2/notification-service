@@ -17,6 +17,5 @@ RUN pip install --no-cache-dir --upgrade pip \
 COPY README.md alembic.ini pyproject.toml ./
 COPY alembic ./alembic
 COPY app ./app
-COPY tests ./tests
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
