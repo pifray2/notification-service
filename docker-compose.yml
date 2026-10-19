@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: notification-service-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-notification-service}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "55433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-notification-service}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: notification-service-app
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-notification-service}
+      KAFKA_BROKERS: kafka:9092
+    ports:
+      - "8001:8000"
+    volumes:
+      - .:/app
+    networks:
+      - default
+      - shared-kafka
+    command:
+      [
+        "/bin/sh",
+        "-c",
+        "alembic upgrade head && exec uvicorn app.main:app --host ${APP_HOST:-0.0.0.0} --port ${APP_PORT:-8000}",
+      ]
+networks:
+  shared-kafka:
+    external: true
+
+volumes:
+  postgres_data:
